@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**/*'          # Include all files by default
+      - '!README.md' 
 
 jobs:
   deploy:

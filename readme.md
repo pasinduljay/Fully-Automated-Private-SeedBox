@@ -1,94 +1,113 @@
-# Private Torrent Downloader with File Server
+# Private SeedBox (Simplified Deployment)
 
 ## Overview
 
-This project sets up a **Private Torrent Downloader** on your server using **Transmission** for torrent downloading and **FileBrowser** for file management. **Nginx Proxy Manager** provides secure, easy access with HTTPS to both services.
+This project sets up a **Private SeedBox** on your own server using **Transmission** for torrent downloading and **FileBrowser** for file management. **Nginx** is used as a reverse proxy to enable secure HTTPS access to both services using Cloudflare SSL certificates.
 
 With this setup, you can:
-- **Download torrents** privately and securely on your own server.
-- **Manage your downloaded files** with a simple web interface (FileBrowser).
-- **Access all services securely** through Nginx Proxy Manager with HTTPS.
+- **Download torrents privately** and securely on your own server.
+- **Manage downloaded files** via a simple web interface (FileBrowser).
+- **Access all services securely** using HTTPS without manual configuration.
 
-## Advantages
-- **Privacy & Control**: Full control over your environment ensures privacy and avoids third-party clients.
-- **Seamless Access**: User-friendly experience with Transmission, FileBrowser, and Nginx Proxy Manager.
-- **Web-Based Management**: Both Transmission and FileBrowser are accessible through a web interface.
-- **Enhanced Security**: Nginx Proxy Manager enables secure access to services via HTTPS.
+---
+
+## Key Features
+- **No Manual Configuration**: Automatic setup with GitHub Actions and Docker Compose.
+- **Customizable**: Users can fork and adjust the repository as needed.
+- **Secure Access**: Services are secured using HTTPS with Cloudflare SSL.
+
+---
 
 ## Requirements
-- A **Linux server** with Docker and Docker Compose installed.
-- A **GitHub account** for repository management.
-- A **domain** for Nginx Proxy Manager setup (optional but recommended).
+- A **Linux server**
+- A **Domain Attached with Cloudflare** 
 
 ---
-## Accessing the Services
 
-- **Transmission**: Access your torrent downloader via [https://tor.techdevops.me](https://tor.techdevops.me)
-- **FileBrowser**: Access your file manager via [https://download.techdevops.me](https://download.techdevops.me)
+## Getting Started
 
----
-## Set up your own environment similar to this, follow these steps :
+Follow these steps to deploy the environment on your server:
 
+### Step 1: Fork the Repository
 
-### Step 1: Fork and Clone the Repository
-1. Fork the [Private-Torrent-Downloader](https://github.com/pasinduljay/Private-Torrent-Downlaoder-using-FileBrowser) repository on GitHub.
+1. Fork this [Private-Torrent-Downloader](https://github.com/pasinduljay/Private-SeedBox/fork) to your own GitHub account.
 
-### Step 2: Configure GitHub Secrets
-Set up GitHub secrets for automatic deployment:
-1. Navigate to **Settings > Secrets > Actions** in your GitHub repository.
+### Step 2: Set Up Your Server
+
+1. Create a **Linux server** (Ubuntu recommended) with the following specifications:
+   - Username: `ubuntu` (default).  
+     **Note**: If you use a different username, update all file paths in the repository to reflect the new username.
+   - Ensure **port 443** is open in the server for public HTTPS access.
+
+2. Get the server's public IP address.
+
+### Step 3: Update the GitHub Workflow
+
+1. In your forked repository, navigate to `.github/workflows/deploy.yml`.
+2. Replace the existing `INSTANCE_IP` with your server's public IP address.
+
+### Step 4: Configure GitHub Secrets
+
+Set up the required GitHub secrets to enable automatic deployment:
+1. Go to **Settings > Secrets > Actions** in your forked repository.
 2. Add the following secrets:
-   - `SSH_PRIVATE_KEY`: Your private SSH key for server access.
+   - `SSH_PRIVATE_KEY`: The private key for SSH access to your server.
    - `GHUB_USERNAME`: Your GitHub username.
    - `TOKEN`: Your GitHub personal access token.
+   - `SSL_CERT`: Your Cloudflare SSL certificate.
+   - `SSL_KEY`: Your Cloudflare SSL private key.
 
-### Step 3: Configure `deploy.yml`
-In `.github/workflows/deploy.yml`, set the following environment variables:
-- `INSTANCE_IP`: Your server's IP address.
-- `USERNAME`: Your server's username, usually `ubuntu`.
+### Step 5: Deploy the Environment
 
-Ensure SSH access is configured by adding your public key to `~/.ssh/authorized_keys` on the server.
+1. Commit and push any changes to your forked repository.
+2. GitHub Actions will automatically trigger the deployment process. Wait for the workflow to complete.
 
-### Step 4: Trigger Deployment
-Pushing changes to the main branch will automatically trigger the deployment process.
+---
 
-### Step 5: Configure Nginx Proxy Manager
-Once deployment is complete, access Nginx Proxy Manager at `http://your-server-ip:81`.
-1. Log in with default credentials:
-   - **Email**: `admin@example.com`
-   - **Password**: `changeme`
-2. Set up a new admin user.
-3. Add proxy hosts for Transmission and FileBrowser:
-   - **Transmission**: Proxy host on port `9091`.
-   - **FileBrowser**: Proxy host on port `80`.
-4. Enable SSL with Let's Encrypt for HTTPS.
+## Accessing the Services
 
-### Step 6: Access Transmission and FileBrowser
-Access your services via the configured domain or IP:
-- **Transmission**: `https://your-domain/transmission`
-- **FileBrowser**: `https://your-domain/filebrowser`
+Once the deployment is complete, access the services using your server's IP address or domain name:
 
-### Step 7: Default Login for FileBrowser
-Log in to FileBrowser with default credentials:
+- **Transmission**: Access the torrent downloader at `https://your-server-ip/transmission`.
+- **FileBrowser**: Access the file manager at `https://your-server-ip/filebrowser`.
+
+---
+
+## Default Credentials
+
+### FileBrowser
 - **Username**: `admin`
 - **Password**: `admin`
 
-Change the password upon first login for security.
+**Important**: Change the password upon first login for security.
+
+---
 
 ## Docker Compose Overview
 
 ### Transmission
-- **Image**: `pasinduljay/transmission:1.1`
 - **Purpose**: Torrent client for downloading torrents.
+- **Port**: Exposed internally for reverse proxy.
 - **Volume Mounts**:
   - `/downloads`: Directory for downloaded files.
   - `/config`: Configuration files.
 
 ### FileBrowser
-- **Image**: `pasinduljay/filebrowser:1.1`
 - **Purpose**: Web-based file manager for managing downloaded files.
 - **Volume Mounts**:
   - `/srv`: Directory shared with Transmission.
 
-### Nginx Proxy Manager
-- **Image**: `pasinduljay/nginx-proxy-manager:1.1`
-- **Purpose**: Manage access with SSL-enabled proxy hosts.
+### Nginx
+- **Purpose**: Reverse proxy for secure access to both services.
+- **Features**:
+  - Configured for HTTPS using Cloudflare SSL.
+  - Automatically proxies `Transmission` and `FileBrowser`.
+
+---
+
+## Notes
+1. This setup automates everything; no manual configuration is required after pushing the changes.
+2. Ensure your server has **Docker** and **Docker Compose** installed. The setup script verifies and installs them if needed.
+3. If you need to customize the username or paths, update all file paths in the repository accordingly.
+
+Enjoy your secure, private torrent downloader and file manager!
