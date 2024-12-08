@@ -1,0 +1,48 @@
+name: Deploy Private SeedBox
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      INSTANCE_IP: "47.129.161.131"
+      USERNAME: "ubuntu"
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      GITHUB_USERNAME: ${{ secrets.GHUB_USERNAME }}
+      GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      SSL_CERT: ${{ secrets.SSL_CERT }}  # GitHub secret for SSL certificate
+      SSL_KEY: ${{ secrets.SSL_KEY }}  # GitHub secret for SSL private key
+
+    steps:
+    - name: Install SSH Key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: deploy webapp
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ env.INSTANCE_IP }}
+        username: ${{ env.USERNAME }}
+        key: ${{ env.SSH_PRIVATE_KEY }}
+        script: |
+          cd /home/ubuntu 
+          sudo rm -rf Private-Torrent-Downlaoder-SeedBox
+          git clone https://${{ env.GITHUB_USERNAME }}:${{ env.GITHUB_TOKEN }}@github.com/pasinduljay/Private-Torrent-Downlaoder-SeedBox.git
+          cd Private-Torrent-Downlaoder-SeedBox
+          
+          # Create SSL certificate and key files from GitHub Secrets
+          mkdir -p ./nginx/ssl
+          echo "${{ env.SSL_CERT }}" > ./nginx/ssl/cloudflare.crt
+          echo "${{ env.SSL_KEY }}" > ./nginx/ssl/cloudflare.key
+          
+          # Build and deploy the Docker containers
+          bash <(curl -Ls https://gist.githubusercontent.com/pasinduljay/02cf2effb83c771c6f302b2ba59faf74/raw/8f1a8903b11da98510bb53f452fd8a0b35f04c53/Verification%2520for%2520Docker%2520and%2520Docker-compose)
+          sudo docker-compose down
+          sudo docker-compose build
+          sudo docker-compose up -d

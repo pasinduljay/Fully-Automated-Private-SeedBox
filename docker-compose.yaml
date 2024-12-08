@@ -1,0 +1,48 @@
+services:
+  transmission:
+    image: linuxserver/transmission:latest
+    container_name: transmission
+    environment:
+      - PUID=1000 # Change as per your user ID
+      - PGID=1000 # Change as per your group ID
+      - TZ=Etc/UTC
+      - TRANSMISSION_WEB_UI=transmission-web-control # Optional: Use a different UI
+    volumes:
+      - /home/ubuntu/volume/shared:/downloads # Shared directory
+      - /home/ubuntu/volume/config/transmission/config:/config
+    networks:
+      - reverse-proxy
+    restart: unless-stopped
+
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    environment:
+      - PUID=1000 # Change as per your user ID
+      - PGID=1000 # Change as per your group ID
+      - TZ=Etc/UTC
+    volumes:
+      - /home/ubuntu/volume/shared:/srv # Same shared directory
+    networks:
+      - reverse-proxy
+    restart: unless-stopped
+
+  nginx-proxy-manager:
+    image: nginx:latest
+    container_name: nginx-reverse-proxy
+    environment:
+      DB_SQLITE_FILE: "/data/database.sqlite"
+    volumes:
+      - ./nginx/reverse-proxy:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl/
+    ports:
+      - '80:80'   # HTTP
+      - '443:443' # HTTPS
+    networks:
+      - reverse-proxy
+    restart: unless-stopped
+
+networks:
+  reverse-proxy:
+    driver: bridge
+    name: SeedBoxNetwork
