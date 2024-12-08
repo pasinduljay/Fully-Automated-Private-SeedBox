@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '!readme.md' 
 
 jobs:
   deploy:
