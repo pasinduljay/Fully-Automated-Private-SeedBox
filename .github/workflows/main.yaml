@@ -32,9 +32,9 @@ jobs:
         key: ${{ env.SSH_PRIVATE_KEY }}
         script: |
           cd /home/ubuntu 
-          sudo rm -rf Private-Torrent-Downlaoder-SeedBox
-          git clone https://${{ env.GITHUB_USERNAME }}:${{ env.GITHUB_TOKEN }}@github.com/pasinduljay/Private-Torrent-Downlaoder-SeedBox.git
-          cd Private-Torrent-Downlaoder-SeedBox
+          sudo rm -rf Private-SeedBox
+          git clone https://${{ env.GITHUB_USERNAME }}:${{ env.GITHUB_TOKEN }}@github.com/pasinduljay/Private-SeedBox.git
+          cd Private-SeedBox
           
           # Create SSL certificate and key files from GitHub Secrets
           mkdir -p ./nginx/ssl
