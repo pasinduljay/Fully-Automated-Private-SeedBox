@@ -30,7 +30,7 @@ Follow these steps to deploy the environment on your server:
 
 ### Step 1: Fork the Repository
 
-1. Fork this [Private-Torrent-Downloader](https://github.com/pasinduljay/Private-SeedBox/fork) to your own GitHub account.
+1. Fork this [Private-Torrent-Downloader](https://github.com/pasinduljay/Fully-Automated-Private-SeedBox/fork) to your own GitHub account.
 
 ### Step 2: Set Up Your Server
 
